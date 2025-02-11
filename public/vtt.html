@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+    <head>
+        <meta encoding="utf-8">
+        <title>VTT</title>
+        <style>
+            ::cue {
+                background-color: darkblue;
+                color: yellow;
+            }
+            ::cue(.especial) {
+                background-color: yellow!important;
+                color: darkblue!important;
+            }
+        </style>
+    </head>
+    <body>
+        <video src="media/1080.mp4" height="360" controls autoplay loop>
+            <track kind="captions" label="captions" src="./media/captions.vtt" default />
+            <track kind="metadata" label="metadata" src="./media/metadata.vtt" default />
+            <track kind="chapters" label="chapters" src="./media/chapters.vtt" default />
+        </video>
+        <div id="out-captions">
+            Aquí hi aniran les captions.
+        </div>
+        <div id="out-metadata">
+            Aquí hi aniran les metadata.
+        </div>
+        <div id="out-chapters">
+            Aquí hi aniran les metadata.
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('track').forEach(trackElement => {
+                    const track = trackElement.track;
+                    track.addEventListener('cuechange', event => {
+                        document.querySelector(`#out-${track.kind}`).textContent = `track ${track.kind} cuechange: ` + track.activeCues[0].startTime + " -> " + track.activeCues[0].endTime + ": " + track.activeCues[0].text;
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>

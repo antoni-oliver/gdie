@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" minBufferTime="PT1.500000S" type="static"
+  mediaPresentationDuration="PT0H0M50.64S" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011">
+  <Period id="0" duration="PT0H0M18.440S">
+	<AdaptationSet mimeType="text/vtt" lang="en"> 
+		<Representation id="caption_en" bandwidth="256">
+			<BaseURL>captionsp1en.vtt</BaseURL> 
+		</Representation>
+	</AdaptationSet>
+	<AdaptationSet mimeType="text/vtt" lang="ca"> 
+		<Representation id="caption_ca" bandwidth="256">
+			<BaseURL>captionsp1.vtt</BaseURL> 
+		</Representation>
+	</AdaptationSet>
+	<AdaptationSet mimeType="text/vtt" role="metadata"> 
+		<Representation id="meta" bandwidth="256">
+			<BaseURL>metap1.vtt</BaseURL> 
+		</Representation>
+	</AdaptationSet>
+    <AdaptationSet segmentAlignment="true" maxWidth="3840" maxHeight="2160" maxFrameRate="25"
+      par="16:9" lang="und" subsegmentAlignment="true" subsegmentStartsWithSAP="1">
+      <Representation id="1" mimeType="video/mp4" codecs="avc1.640028" width="1920" height="1080"
+        frameRate="25" sar="1:1" startWithSAP="1" bandwidth="5005019">
+        <BaseURL>//ltim.uib.es/files/palma360/p1/1080.mp4</BaseURL>
+        <SegmentBase indexRangeExact="true" indexRange="955-1214">
+          <Initialization range="0-954" />
+        </SegmentBase>
+      </Representation>
+      <Representation id="3" mimeType="video/mp4" codecs="avc1.64001f" width="1280" height="720"
+        frameRate="25" sar="1:1" startWithSAP="1" bandwidth="2005838">
+        <BaseURL>//ltim.uib.es/files/palma360/p1/720.mp4</BaseURL>
+        <SegmentBase indexRangeExact="true" indexRange="953-1212">
+          <Initialization range="0-952" />
+        </SegmentBase>
+      </Representation>
+      <Representation id="6" mimeType="video/mp4" codecs="avc1.640033" width="3840" height="2160"
+        frameRate="25" sar="1:1" startWithSAP="1" bandwidth="19927873">
+        <BaseURL>//ltim.uib.es/files/palma360/p1/2160.mp4</BaseURL>
+        <SegmentBase indexRangeExact="true" indexRange="954-1213">
+          <Initialization range="0-953" />
+        </SegmentBase>
+      </Representation>
+    </AdaptationSet>
+  </Period>
+  <Period id="1" duration="PT0H0M11.520S">
+	<AdaptationSet mimeType="text/vtt" lang="en"> 
+		<Representation id="caption_en" bandwidth="256">
+			<BaseURL>captionsp2en.vtt</BaseURL> 
+		</Representation>
+	</AdaptationSet>
+	<AdaptationSet mimeType="text/vtt" lang="ca"> 
+		<Representation id="caption_ca" bandwidth="256">
+			<BaseURL>captionsp2.vtt</BaseURL> 
+		</Representation>
+	</AdaptationSet>
+	<AdaptationSet mimeType="text/vtt" role="metadata"> 
+		<Representation id="meta" bandwidth="256">
+			<BaseURL>metap2.vtt</BaseURL> 
+		</Representation>
+	</AdaptationSet>
+    <AdaptationSet segmentAlignment="true" maxWidth="3840" maxHeight="2160" maxFrameRate="25" par="16:9" lang="und" subsegmentAlignment="true" subsegmentStartsWithSAP="1">
+     <Representation id="1" mimeType="video/mp4" codecs="avc1.64001f" width="1280" height="720" frameRate="25" sar="1:1" startWithSAP="1" bandwidth="2003496">
+      <BaseURL>//ltim.uib.es/files/palma360/p2/720.mp4</BaseURL>
+      <SegmentBase indexRangeExact="true" indexRange="953-1128">
+        <Initialization range="0-952"/>
+      </SegmentBase>
+     </Representation>
+     <Representation id="2" mimeType="video/mp4" codecs="avc1.640028" width="1920" height="1080" frameRate="25" sar="1:1" startWithSAP="1" bandwidth="5035577">
+      <BaseURL>//ltim.uib.es/files/palma360/p2/1080.mp4</BaseURL>
+      <SegmentBase indexRangeExact="true" indexRange="955-1130">
+        <Initialization range="0-954"/>
+      </SegmentBase>
+     </Representation>
+     <Representation id="5" mimeType="video/mp4" codecs="avc1.640033" width="3840" height="2160" frameRate="25" sar="1:1" startWithSAP="1" bandwidth="19976044">
+      <BaseURL>//ltim.uib.es/files/palma360/p2/2160.mp4</BaseURL>
+      <SegmentBase indexRangeExact="true" indexRange="954-1129">
+        <Initialization range="0-953"/>
+      </SegmentBase>
+     </Representation>
+    </AdaptationSet>
+   </Period>
+   <Period id="2" duration="PT0H0M20.680S">
+	<AdaptationSet mimeType="text/vtt" lang="en"> 
+		<Representation id="caption_en" bandwidth="256">
+			<BaseURL>captionsp3en.vtt</BaseURL> 
+		</Representation>
+	</AdaptationSet>
+	<AdaptationSet mimeType="text/vtt" lang="ca"> 
+		<Representation id="caption_ca" bandwidth="256">
+			<BaseURL>captionsp3.vtt</BaseURL> 
+		</Representation>
+	</AdaptationSet>
+	<AdaptationSet mimeType="text/vtt" role="metadata"> 
+		<Representation id="meta" bandwidth="256">
+			<BaseURL>metap3.vtt</BaseURL> 
+		</Representation>
+	</AdaptationSet>
+    <AdaptationSet segmentAlignment="true" maxWidth="3840" maxHeight="2160" maxFrameRate="25" par="16:9" lang="und" subsegmentAlignment="true" subsegmentStartsWithSAP="1">
+     <Representation id="1" mimeType="video/mp4" codecs="avc1.640028" width="1920" height="1080" frameRate="25" sar="1:1" startWithSAP="1" bandwidth="5021855">
+      <BaseURL>//ltim.uib.es/files/palma360/p3/1080.mp4</BaseURL>
+      <SegmentBase indexRangeExact="true" indexRange="954-1237">
+        <Initialization range="0-953"/>
+      </SegmentBase>
+     </Representation>
+     <Representation id="3" mimeType="video/mp4" codecs="avc1.64001f" width="1280" height="720" frameRate="25" sar="1:1" startWithSAP="1" bandwidth="2004632">
+      <BaseURL>//ltim.uib.es/files/palma360/p3/720.mp4</BaseURL>
+      <SegmentBase indexRangeExact="true" indexRange="954-1237">
+        <Initialization range="0-953"/>
+      </SegmentBase>
+     </Representation>
+     <Representation id="6" mimeType="video/mp4" codecs="avc1.640033" width="3840" height="2160" frameRate="25" sar="1:1" startWithSAP="1" bandwidth="19833679">
+      <BaseURL>//ltim.uib.es/files/palma360/p3/2160.mp4</BaseURL>
+      <SegmentBase indexRangeExact="true" indexRange="953-1236">
+        <Initialization range="0-952"/>
+      </SegmentBase>
+     </Representation>
+    </AdaptationSet>
+   </Period>
+</MPD>

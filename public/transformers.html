@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>IA</title>
+  </head>
+  <body>
+    <ul id="messages"></ul>  <form id="form" action="">    <input id="input" autocomplete="off" disabled /> 
+      <button>Send</button>  </form>    
+    <script type="module">
+      import { pipeline, env } from "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.0";
+      env.allowLocalModels = false;
+
+      const messages = document.getElementById('messages');
+      const form = document.getElementById('form');
+      const input = document.getElementById('input');
+      
+      addMessage('This translates from CATALAN to ENGLISH');
+
+      addMessage('loading...');
+
+      const translator = await pipeline("translation", 'Xenova/nllb-200-distilled-600M');
+
+      addMessage('done');
+
+      input.removeAttribute('disabled');
+
+      form.addEventListener('submit', async function(e) {
+              e.preventDefault();
+              if (input.value) {
+                input.setAttribute('disabled', true);
+                addMessage('Input: ' + input.value);
+                const translation = await translator(input.value, {
+                  src_lang: 'cat_Latn',
+                  tgt_lang: 'eng_Latn'
+                });
+                console.log(translation);
+                addMessage('Translation: ' + JSON.stringify(translation));
+                input.removeAttribute('disabled');
+                input.value = '';
+              }
+            });
+      function addMessage(txt) {
+        const li = document.createElement('li');
+        li.textContent = txt;
+        messages.appendChild(li);
+      }
+
+    </script>
+
+  </body>
+</html>

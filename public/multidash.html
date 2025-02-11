@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Prova DASH</title>
+	</head>
+	<body>
+		<video style="width: 800px" controls></video>
+		<div id="out-captions">
+			Aquí hi aniran les captions.
+		</div>
+		<div id="out-metadata">
+			Aquí hi aniran les metadata.
+		</div>
+
+		<script src="//cdn.dashjs.org/latest/dash.all.min.js"></script>
+		<script>
+
+			document.addEventListener('DOMContentLoaded', function () {
+							init();
+						});
+
+			function init() {
+							var video,
+								player,
+								url = "media/multi.mpd";
+
+							video = document.querySelector("video");
+							player = dashjs.MediaPlayer().create();
+							player.initialize(video, url, true);
+
+							document.querySelectorAll('track').forEach(trackElement => {
+											const track = trackElement.track;
+											track.addEventListener('cuechange', event => {
+															document.querySelector(`#out-${track.kind}`).textContent = `track ${track.kind} cuechange: ` + track.activeCues[0].startTime + " -> " + track.activeCues[0].endTime + ": " + track.activeCues[0].text;
+														});
+										});
+							player.on("cueEnter", event => {
+								console.log("enter", event);
+										});
+							player.on("cueExit", event => {
+								console.log("exit", event);
+										});
+						}
+		</script>
+	</body>
+</html>

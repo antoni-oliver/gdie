@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>IA</title>
+<style>
+  textarea {
+    width: 100%;
+    display: block;
+    min-height: 200px;
+  }
+</style>
+  </head>
+  <body>
+    <ul id="messages"></ul><h1>Traductor IA català -> anglès</h1><p id="wait">Espera un poc perquè ha de carregar coses...</p>  <form id="form" action="">    <label for="input">Escriu aquí en català:</label><textarea id="input" autocomplete="off" disabled></textarea>
+      <label for="output">Traducció en anglès:</label>
+      <textarea id="output" autocomplete="off" disabled></textarea>
+      <div id="progress-bar"></div>
+      <button id="button">Send</button>  </form>    
+    <script type="module">
+      const aiWorker = new Worker('transformers.worker.js', { type: 'module' });
+
+      const messages = document.getElementById('messages');
+      const form = document.getElementById('form');
+      const input = document.getElementById('input');
+      const output = document.getElementById('output');
+      const progressBar = document.getElementById('progress-bar');
+      const button = document.getElementById('button');
+      
+      disableUI();
+
+      aiWorker.postMessage({
+        action: 'download',
+        task: 'translation',
+        model: 'Xenova/nllb-200-distilled-600M'
+      });
+
+      aiWorker.addEventListener('message', (event) => {
+
+         const { status, result } = event.data;
+
+         // Web Worker is informing us that...
+         
+         if (status == 'downloading') {
+             if (result.status == 'progress') {
+                 // animated progress bar for download
+                 progressBar.style.setProperty("--progress-bar-percentage", result.progress + "%");
+             }
+
+         }  else if (status == 'ready') {
+             enableUI();
+             document.querySelector('#wait').textContent = 'Ja està ;)';
+             form.addEventListener('submit', (event) => {
+             disableUI();
+             event.preventDefault();
+             aiWorker.postMessage({
+               action: 'translate',
+               input: input.value,
+               generation: {
+                 src_lang: 'cat_Latn',
+                  tgt_lang: 'eng_Latn'
+               }
+               });
+             });
+
+         } else if (status == 'update') {
+             // secret ingredient
+             output.value = result;
+         } else if (status == 'result') {
+             output.value = result;
+             enableUI();
+         }
+     })
+
+    function disableUI() {
+      input.setAttribute('disabled', true);
+      button.setAttribute('disabled', true);
+    }
+
+    function enableUI() {
+      input.removeAttribute('disabled');
+      button.removeAttribute('disabled');
+    }
+
+      function addMessage(txt) {
+        const li = document.createElement('li');
+        li.textContent = txt;
+        messages.appendChild(li);
+      }
+
+    </script>
+
+  </body>
+</html>
