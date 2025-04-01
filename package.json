@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@huggingface/inference": "^3.6.2",
     "express": "^4.18.2",
     "is-prime": "^1.0.1",
     "socket.io": "^4.7.5"

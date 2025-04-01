@@ -1,17 +1,21 @@
-const express = require('express');
-const http = require('http');
-const socketio = require('socket.io');
+//const express = require('express');
+//const http = require('http');
+//const socketio = require('socket.io');
+import express from 'express';
+import http from 'http';
+import { Server } from 'socket.io';
 
 const app = express();
 const server = http.createServer(app);
-const io = socketio(server);
+const io = new Server(server);
 
 const port = 80;
-const HF_TOKEN = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+const HF_TOKEN = process.env.HF_TOKEN;
 
-const { HfInference } = require('@huggingface/inference');
+// const { InferenceClient } = require('@huggingface/inference');
+import { InferenceClient } from "@huggingface/inference";
 
-const inference = new HfInference(HF_TOKEN);
+const inference = new InferenceClient(HF_TOKEN);
 
 io.on('connection', (socket) => {
   let count = 0;
