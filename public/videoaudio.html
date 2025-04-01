@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+  <head><title>Video + audio</title></head>
+  <body>
+    <video id="video" controls width="480"> 
+      <source src="media/video1_4k.mp4" type="video/mp4">
+    <audio controls id="audio">
+      <source src="media/audio1_en.mp4" type="audio/mp4">
+      <source src="media/audio1_en.mp3" type="audio/mp3">
+    </audio>
+    </video>
+
+    <script>
+      const video = document.getElementById("video");
+      const audio = document.getElementById("audio");
+
+      video.addEventListener("play", () => audio.play());
+      video.addEventListener("pause", () => audio.pause());
+      video.addEventListener("seeking", () => (audio.currentTime = video.currentTime));
+      /*video.addEventListener("timeupdate", () => (audio.currentTime = video.currentTime));*/
+    </script>
+
+    <video id="video2" controls width="480"></video>
+    <script>
+      const videoUrl = "media/video1_4k.mp4";
+      const audioUrl = "media/audio1_en.mp4";
+      const videoElement = document.getElementById('video2');
+      const mediaSource = new MediaSource();
+      
+      mediaSource.addEventListener('sourceopen', () => {
+        const videoSourceBuffer = mediaSource.addSourceBuffer('video/mp4');
+        const audioSourceBuffer = mediaSource.addSourceBuffer('audio/mp4');
+        // Això descarrega tot el vídeo i l'audio => :(
+        /*Promise.all([
+          fetch("media/video1_4k.mp4").then(response => response.arrayBuffer()),
+          fetch("media/audio1_en.mp4").then(response => response.arrayBuffer())
+        ]).then(([videoData, audioData]) => {
+          videoSourceBuffer.appendBuffer(videoData);
+          audioSourceBuffer.appendBuffer(audioData);
+        });*/
+
+        // Function to fetch and append video/audio in chunks
+        // Fetch data for the first chunk (initial load)
+        let videoPosition = 0;
+        let audioPosition = 0;
+        const chunkSize = 10 * 1024 * 1024;  // 10MB per chunk
+
+        // Function to fetch a chunk of data and append it
+        function fetchAndAppend(type, url, position, sourceBuffer) {
+            const range = `bytes=${position}-${position + chunkSize - 1}`;
+            fetch(url, { headers: { 'Range': range } })
+                .then(response => response.arrayBuffer())
+                .then(data => {
+                    sourceBuffer.appendBuffer(data);
+                    position += data.byteLength;
+                })
+                .catch(error => console.error(`Error fetching ${type} chunk:`, error));
+        }
+
+        // Function to monitor playback and request the next chunk when needed
+        function monitorBuffering() {
+            const buffered = videoElement.buffered;
+            const currentTime = videoElement.currentTime;
+            const videoEnd = buffered.length ? buffered.end(buffered.length - 1) : 0;
+
+            // If we are approaching the end of the buffered area, fetch more data
+            if (videoEnd - currentTime < 30 && !videoSourceBuffer.updating) {
+                // Fetch the next chunk for video if needed
+                fetchAndAppend('video', videoUrl, videoPosition, videoSourceBuffer);
+                // Fetch the next chunk for audio if needed
+                fetchAndAppend('audio', audioUrl, audioPosition, audioSourceBuffer);
+            }
+        }
+
+        // Initial chunk fetching
+        fetchAndAppend('video', videoUrl, videoPosition, videoSourceBuffer);
+        fetchAndAppend('audio', audioUrl, audioPosition, audioSourceBuffer);
+
+        // Periodically check if more chunks are needed
+        setInterval(monitorBuffering, 500);  // Check every 500ms
+      });
+      videoElement.src = URL.createObjectURL(mediaSource);
+    </script>
+  </body>
+</html>
