@@ -70,7 +70,7 @@ io.on('connection', (socket) => {
     });
 
     const image = await inference.textToImage({
-      provider: 'replicate',
+      // provider: 'replicate',
       model: "stabilityai/stable-diffusion-xl-base-1.0",
       inputs: text,
       parameters: {
