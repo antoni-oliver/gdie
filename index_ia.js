@@ -17,6 +17,8 @@ import { InferenceClient } from "@huggingface/inference";
 
 const inference = new InferenceClient(HF_TOKEN);
 
+let peers = []; // webrtc
+
 io.on('connection', (socket) => {
   console.log("CONNECTAT IA");
   let count = 0;
@@ -92,6 +94,30 @@ io.on('connection', (socket) => {
 
     socket.emit('image', json);
     
+  });
+
+  // webrtc
+  socket.on("wrtc", () => {
+    console.log('wrtc');
+    const existing = peers.find( s => s === socket.id);
+    if (!existing) {
+      peers.push(socket.id);
+      socket.emit('update-user-list', {
+        users: peers.filter( s => s !== socket.id)
+      });
+      socket.broadcast.emit('update-user-list', {
+        users: peers
+      });
+    }
+  });
+
+  socket.on('disconnect', () => {
+    peers = peers.filter(
+      s => s !== socket.id
+    );
+    socket.broadcast.emit("remove-user", {
+      socketId: socket.id
+    });
   });
 });
 

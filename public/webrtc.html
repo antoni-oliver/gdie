@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-WebRTC App</title>
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <div class="content-container">
+            <div class="active-users-panel" id="active-user-container">
+                <h3 class="panel-title">Active Users:</h3>
+            </div>
+            <div class="video-chat-container">
+                <h2 class="talk-info" id="talking-with-info">
+                    Select active user on the left menu.
+                </h2>
+                <div class="video-container">
+                    <video autoplay class="remote-video" id="remote-video"></video>
+                    <video autoplay muted class="local-video" id="local-video"></video>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        async function init() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                const localVideo = document.getElementById("local-video");
+                if (localVideo) {
+                    localVideo.srcObject = stream;
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        init();
+
+        const socket = io();
+
+        socket.on('connect', () => {
+            socket.emit('wrtc');
+        })
+
+        socket.on("update-user-list", ({ users }) => {
+            updateUserList(users);
+        });
+
+        socket.on("remove-user", ({ socketId }) => {
+            const elToRemove = document.getElementById(socketId);
+
+            if (elToRemove) {
+                elToRemove.remove();
+            }
+        });
+    </script>
+</body>
+
+</html>
