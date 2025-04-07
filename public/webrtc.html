@@ -6,7 +6,116 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Node-WebRTC App</title>
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Montserrat", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #f9fafc;
+            color: #595354;
+        }
 
+        .header {
+            background-color: #ffffff;
+            padding: 10px 40px;
+            box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header>.logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .header>.logo-container>.logo-img {
+            width: 60px;
+            height: 60px;
+            margin-right: 15px;
+        }
+
+        .header>.logo-container>.logo-text {
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .header>.logo-container>.logo-text>.logo-highlight {
+            color: #65a9e5;
+        }
+
+        .content-container {
+            width: 100%;
+            height: calc(100vh - 89px);
+            display: flex;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        .active-users-panel {
+            width: 300px;
+            height: 100%;
+            border-right: 1px solid #cddfe7;
+        }
+
+        .panel-title {
+            margin: 10px 0 0 0;
+            padding-left: 30px;
+            font-weight: 500;
+            font-size: 18px;
+            border-bottom: 1px solid #cddfe7;
+            padding-bottom: 10px;
+        }
+
+        .active-user {
+            padding: 10px 30px;
+            border-bottom: 1px solid #cddfe7;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .active-user.me {
+            background-color: #d8f89b;
+            pointer-events: none;
+        }
+
+        .active-user:hover {
+            background-color: #e8e9eb;
+            transition: background-color 0.5s ease;
+        }
+
+        .active-user--selected {
+            background-color: #fff;
+            border-right: 5px solid #65a9e5;
+            font-weight: 500;
+            transition: all 0.5s ease;
+        }
+
+        .video-chat-container {
+            padding: 0 20px;
+            flex: 1;
+            position: relative;
+        }
+
+        .talk-info {
+            font-weight: 500;
+            font-size: 21px;
+        }
+
+        .remote-video {
+            border: 1px solid #cddfe7;
+            width: 100%;
+            height: 100%;
+            box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .local-video {
+            position: absolute;
+            border: 1px solid #cddfe7;
+            bottom: 60px;
+            right: 40px;
+            box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            width: 300px;
+        }
     </style>
 </head>
 
@@ -28,28 +137,108 @@
         </div>
     </div>
     <script src="/socket.io/socket.io.js"></script>
-    <script>
-        async function init() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                const localVideo = document.getElementById("local-video");
-                if (localVideo) {
-                    localVideo.srcObject = stream;
-                }
-            } catch (err) {
-                console.error(err);
-            }
+    <script type="module">
+
+        let isAlreadyCalling = false;
+        let getCalled = false;
+        let targetId = null;
+
+        const existingCalls = [];
+
+        const { RTCPeerConnection, RTCSessionDescription, RTCIceCandidate } = window;
+
+        const peerConnection = new RTCPeerConnection({
+            // https://gist.github.com/sagivo/3a4b2f2c7ac6e1b5267c2f1f59ac6c6b
+            iceServers: [
+                {
+                    urls: "stun:stun.relay.metered.ca:80",
+                },
+                {
+                    urls: "turn:standard.relay.metered.ca:80",
+                    username: "30febb1b2c518d331edda645",
+                    credential: "utxXQx5Uq4T4x9yi",
+                },
+                {
+                    urls: "turn:standard.relay.metered.ca:80?transport=tcp",
+                    username: "30febb1b2c518d331edda645",
+                    credential: "utxXQx5Uq4T4x9yi",
+                },
+                {
+                    urls: "turn:standard.relay.metered.ca:443",
+                    username: "30febb1b2c518d331edda645",
+                    credential: "utxXQx5Uq4T4x9yi",
+                },
+                {
+                    urls: "turns:standard.relay.metered.ca:443?transport=tcp",
+                    username: "30febb1b2c518d331edda645",
+                    credential: "utxXQx5Uq4T4x9yi",
+                },
+            ]
+        });
+
+        function unselectUsersFromList() {
+            const alreadySelectedUser = document.querySelectorAll(
+                ".active-user.active-user--selected"
+            );
+
+            alreadySelectedUser.forEach(el => {
+                el.setAttribute("class", "active-user");
+            });
         }
-        init();
 
-        const socket = io();
+        function createUserItemContainer(socketId) {
+            const userContainerEl = document.createElement("div");
 
-        socket.on('connect', () => {
-            socket.emit('wrtc');
-        })
+            const usernameEl = document.createElement("p");
+
+            userContainerEl.setAttribute("class", "active-user");
+            userContainerEl.setAttribute("id", socketId);
+            usernameEl.setAttribute("class", "username");
+            usernameEl.innerHTML = `Socket: ${socketId}`;
+
+            userContainerEl.appendChild(usernameEl);
+
+            if (socketId === socket.id) {
+                userContainerEl.classList.add('me');
+            } else {
+                userContainerEl.addEventListener("click", () => {
+                    unselectUsersFromList();
+                    userContainerEl.setAttribute("class", "active-user active-user--selected");
+                    const talkingWithInfo = document.getElementById("talking-with-info");
+                    talkingWithInfo.innerHTML = `Talking with: "Socket: ${socketId}"`;
+                    callUser(socketId);
+                });
+            }
+
+            return userContainerEl;
+        }
+
+        async function callUser(socketId) {
+            console.log("call");
+            targetId = socketId;
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(new RTCSessionDescription(offer));
+
+            socket.emit("call-user", {
+                offer,
+                to: socketId
+            });
+        }
+
+        const socket = io.connect();
+        socket.emit('init-webrtc');
 
         socket.on("update-user-list", ({ users }) => {
-            updateUserList(users);
+            const activeUserContainer = document.getElementById("active-user-container");
+
+            users.forEach(socketId => {
+                const alreadyExistingUser = document.getElementById(socketId);
+                if (!alreadyExistingUser) {
+                    const userContainerEl = createUserItemContainer(socketId);
+
+                    activeUserContainer.appendChild(userContainerEl);
+                }
+            });
         });
 
         socket.on("remove-user", ({ socketId }) => {
@@ -59,6 +248,80 @@
                 elToRemove.remove();
             }
         });
+
+        socket.on("call-made", async data => {
+            console.log("call made");
+            //if (getCalled) {
+                const confirmed = confirm(
+                    `User "Socket: ${data.socket}" wants to call you. Do accept this call?`
+                );
+
+                if (!confirmed) {
+                    socket.emit("reject-call", {
+                        from: data.socket
+                    });
+
+                    return;
+                }
+            //}
+
+            await peerConnection.setRemoteDescription(
+                new RTCSessionDescription(data.offer)
+            );
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(new RTCSessionDescription(answer));
+
+            socket.emit("make-answer", {
+                answer,
+                to: data.socket
+            });
+            //getCalled = true;
+        });
+
+        socket.on("answer-made", async data => {
+            console.log("answer made");
+            await peerConnection.setRemoteDescription(
+                new RTCSessionDescription(data.answer)
+            );
+
+            /*if (!isAlreadyCalling) {
+                callUser(data.socket);
+                isAlreadyCalling = true;
+            }*/
+        });
+
+        socket.on("call-rejected", data => {
+            alert(`User: "Socket: ${data.socket}" rejected your call.`);
+            unselectUsersFromList();
+        });
+
+        peerConnection.ontrack = function ({ streams: [stream] }) {
+            const remoteVideo = document.getElementById("remote-video");
+            if (remoteVideo) {
+                remoteVideo.srcObject = stream;
+            }
+        };
+
+        peerConnection.onicecandidate = function ({ candidate }) {
+            console.log("snd ice-candidate");
+            socket.emit('ice-candidate', { to: targetId, candidate });
+        };
+
+        socket.on("ice-candidate", async ({ candidate }) => {
+            console.log("rcv ice-candidate");
+            await peerConnection.addIceCandidate(candidate);
+        });
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            const localVideo = document.getElementById("local-video");
+            if (localVideo) {
+                localVideo.srcObject = stream;
+            }
+            stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+        } catch (err) {
+            console.error(err);
+        }
     </script>
 </body>
 

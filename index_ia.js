@@ -97,15 +97,11 @@ io.on('connection', (socket) => {
   });
 
   // webrtc
-  socket.on("wrtc", () => {
-    console.log('wrtc');
+  socket.on("init-webrtc", () => {
     const existing = peers.find( s => s === socket.id);
     if (!existing) {
       peers.push(socket.id);
-      socket.emit('update-user-list', {
-        users: peers.filter( s => s !== socket.id)
-      });
-      socket.broadcast.emit('update-user-list', {
+      io.emit('update-user-list', {
         users: peers
       });
     }
@@ -117,6 +113,26 @@ io.on('connection', (socket) => {
     );
     socket.broadcast.emit("remove-user", {
       socketId: socket.id
+    });
+  });
+
+  socket.on('ice-candidate', data => {
+    socket.to(data.to).emit('ice-candidate', {
+      candidate: data.candidate
+    });
+  });
+
+  socket.on("call-user", data => {
+    socket.to(data.to).emit("call-made", {
+      offer: data.offer,
+      socket: socket.id
+    });
+  });
+
+  socket.on("make-answer", data => {
+    socket.to(data.to).emit("answer-made", {
+      socket: socket.id,
+      answer: data.answer
     });
   });
 });
